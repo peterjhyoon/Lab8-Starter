@@ -54,6 +54,26 @@ function initializeServiceWorker() {
   // B5. TODO - In the event that the service worker registration fails, console
   //            log that it has failed.
   // STEPS B6 ONWARDS WILL BE IN /sw.js
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", (event) => {
+      try {
+        registerServiceWorkers();
+      } catch(error) {
+        console.error(`Error: registration failed with ${error}`);
+      }
+    });
+  }
+
+  async function registerServiceWorkers() {
+    const registration = await navigator.serviceWorker.register("./sw.js");
+    if (registration.installing) {
+      console.log("Service worker installing");
+    } else if (registration.waiting) {
+      console.log("Service worker installed");
+    } else if (registration.active) {
+      console.log("Service worker active");
+    }
+  }
 }
 
 /**
@@ -112,7 +132,6 @@ async function getRecipes() {
         const response = await fetch(recipeURL);
         const jsonData = await response.json();
         fetchRecipes.push(jsonData);
-        
       }
       saveRecipesToStorage(fetchRecipes);
       resolve(fetchRecipes);
